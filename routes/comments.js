@@ -11,9 +11,14 @@ router.get("/:topicId", async (req, res) => {
   res.json(comments);
 });
 
+router.get("/:topicId/count", async (req, res) => {
+  const count = await Comment.countDocuments({ topicId: req.params.topicId });
+  res.json({ count });
+});
+
 router.post("/:topicId", verifyFirebaseToken, async (req, res) => {
   const { text, name, photoURL, timestamp } = req.body;
-  if (!text || !name || !photoURL || !timestamp) {
+  if (!text || !name || !timestamp) {
     return res.status(400).json({ error: "Missing comment fields" });
   }
 
@@ -21,7 +26,7 @@ router.post("/:topicId", verifyFirebaseToken, async (req, res) => {
     topicId: req.params.topicId,
     uid: req.user.uid,
     name,
-    photoURL,
+    photoURL: photoURL || "",
     text,
     timestamp: new Date(timestamp)
   });
